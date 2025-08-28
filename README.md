@@ -35,19 +35,25 @@ StarLightAC is intended to run with a **Vercel-hosted backend**, ensuring bans p
 
 ### **Step 2: Initialize and Configure**
 
+1. At the top of the `starlight_anticheat.js`, find the settings like shown below.
+2. Configure the settings to your liking.
+   
 ```html
-<script>
-const slac = new StarLightAC({
-  serverBase: 'https://your-vercel-domain.vercel.app/',
-  webhookURL: 'https://discord.com/api/webhooks/your_webhook', // Optional
-  banOnConsoleExec: true,  // true = ban user on console tamper
-  blockDevTools: true,     // true = disable F12 / DevTools
-  detectClipboard: true,   // monitor paste and copy events
-  detectDOMMutation: true, // detect suspicious DOM changes
-  banDurationMs: 48*60*60*1000 // default 48 hours
-});
-slac.startDetection();
-</script>
+this.settings = Object.assign({
+        blockDevTools: true,          // true = block F12 / shortcuts
+        banOnConsoleExec: true,       // true = ban user on console tamper, false = warn
+        detectConsoleExec: true,
+        detectDevTools: true,
+        detectKeybinds: true,
+        detectClipboard: true,
+        detectCanvasWebGL: true,
+        detectDOMMutation: true,
+        detectTiming: true,
+        detectionInterval: 1000,
+        banDurationMs: 48*60*60*1000,
+        telemetryFlushInterval: 5000,
+        serverBase: '/',              // Vercel base URL
+        webhookURL: null      
 ```
 
 ### **Step 3: Test Detection**
@@ -55,7 +61,7 @@ slac.startDetection();
 * Open your game.
 * Try opening DevTools or pasting code in the console.
 * Check that banned users are redirected to the ban overlay.
-* Verify that Discord webhook receives notifications on bans.
+* Verify that Discord webhook receives notifications on bans. (If you have enabled webhook logs)
 
 ---
 
