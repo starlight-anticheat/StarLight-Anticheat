@@ -1,118 +1,263 @@
-# StarLight Anticheat v5 for Webgames
-**How to setup for my webgame**
 
-Welcome to the **StarLight Anticheat v5 Main User Guide**! This document provides a complete overview for webgame developers on how to integrate, configure, and maintain StarLightAC on their websites.
 
----
+<div align="center">
+  <img src="https://ibb.co/F4v3J3Xm" width="100px" alt="GitHub Readme Stats" />
+  <h1 style="font-size: 28px; margin: 10px 0;">Starlight Anticheat</h1>
+  <p>Advanced Anti-Cheat Framework for Browser Games</p>
+</div>
 
-## **1️⃣ Overview**
-
-StarLightAC Web is a **web-based anticheat system** designed to detect and prevent cheating in browser games. It features:
-
-* DevTools detection and optional blocking
-* Console code execution detection
-* DOM, canvas, and WebGL tamper detection
-* Clipboard monitoring
-* Persistent bans stored in MongoDB
-* Discord webhook notifications
-* Fully configurable by the site owner
-
-StarLightAC is intended to run with a **Vercel-hosted backend**, ensuring bans persist across sessions and cannot be bypassed by page reloads.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0-blue.svg)](https://github.com/starlight-anticheat/starlight-anticheat)
 
 ---
 
-## **2️⃣ Integration Steps**
+## **Table of Contents**
 
-### **Step 1: Include StarLightAC Script**
-
-1. Download the `starlight_anticheat.js` file via the green "Code" button at the top right.
-2. Insert the file into your webpages main folder (where your main game is located)
-3. Add the following script tag to your HTML before your main game code:
-
-```html
-<script src="starlight_anticheat.js"></script>
-```
-
-### **Step 2: Initialize and Configure**
-
-1. At the top of the `starlight_anticheat.js`, find the settings like shown below.
-2. Configure the settings to your liking.
+1. [Overview](#overview)
+2. [Features](#features)
    
-```html
-this.settings = Object.assign({
-        blockDevTools: true,          // true = block F12 / shortcuts
-        banOnConsoleExec: true,       // true = ban user on console tamper, false = warn
-        detectConsoleExec: true,
-        detectDevTools: true,
-        detectKeybinds: true,
-        detectClipboard: true,
-        detectCanvasWebGL: true,
-        detectDOMMutation: true,
-        detectTiming: true,
-        detectionInterval: 1000,
-        banDurationMs: 48*60*60*1000,
-        telemetryFlushInterval: 5000,
-        serverBase: '/',              // Vercel base URL
-        webhookURL: null      
+   * [Client-Side](#client-side)
+   * [Server-Side](#server-side)
+4. [Architecture & Workflow](#architecture--workflow)
+5. [Installation](#installation)
+   
+   * [Server](#server)
+   * [Client](#client)
+6. [Telemetry Workflow](#telemetry-workflow)
+7. [Configuration](#configuration)
+8. [Best Practices & Security](#best-practices--security)
+9. [Contributing](#contributing)
+10. [License](#license)
+11. [Contact](#contact)
+
+---
+
+## **Overview**
+
+Starlight Anticheat is a **modular client-server anti-cheat system** tailored for **web-based browser games**. It combines **client-side monitoring** with **server-side validation** to detect cheating patterns in real-time while remaining easy to integrate and configure.
+
+**Key Capabilities:**
+
+* Client-side monitoring for console manipulation, tampering, and gameplay anomalies
+* Server-side event validation with verdict scoring: `clean`, `suspicious`, or `cheater`
+* Optional real-time WebSocket dashboard for live telemetry
+* Modular and configurable to suit different game architectures
+
+---
+
+## **Features**
+
+### **Client-Side**
+
+* Input monitoring (clicks, key presses, mouse/touch movement)
+* Developer console detection and warning
+* Console paste prevention
+* Script hash and integrity verification
+* DOM mutation monitoring (script injection, iframe detection)
+* Configurable telemetry intervals and thresholds
+
+### **Server-Side**
+
+* Real-time telemetry ingestion
+* Event normalization and validation
+* Session management and rate limiting
+* Verdict engine with risk scoring (`clean`, `suspicious`, `cheater`)
+* Logging to file and console
+* Optional WebSocket support for live admin dashboards
+
+---
+
+## **Architecture & Workflow**
+
+```
++----------------+       HTTPS / WSS       +---------------------+
+|                | ----------------------> |                     |
+|  Browser Game  |                         |  Starlight Server   |
+|  Client        | <---------------------- |  Node.js Backend    |
+|                |       WebSocket (opt)   |                     |
+| - Loader       |                         | - Event Normalizer  |
+| - Client       |                         | - Session Manager   |
+| - Integrity    |                         | - Verdict Engine    |
+| - Hooks        |                         | - Logger            |
+| - Console      |                         +---------------------+
++----------------+
 ```
 
-### **Step 3: Test Detection**
+**Workflow:**
 
-* Open your game.
-* Try opening DevTools or pasting code in the console.
-* Check that banned users are redirected to the ban overlay.
-* Verify that Discord webhook receives notifications on bans. (If you have enabled webhook logs)
-
----
-
-## **3️⃣ Configuration Options**
-
-Site owners can adjust the following settings when initializing StarLightAC:
-
-* **serverBase**: Your Vercel deployment URL.
-* **webhookURL**: Discord webhook for notifications.
-* **banOnConsoleExec**: Ban or warn users when code is detected in the console.
-* **blockDevTools**: Enable or disable DevTools blocking.
-* **detectConsoleExec**: Enable console tampering detection.
-* **detectDevTools**: Detect DevTools opening.
-* **detectKeybinds**: Detect suspicious key combinations (e.g., Ctrl+U).
-* **detectClipboard**: Monitor copy and paste events.
-* **detectCanvasWebGL**: Detect tampering with canvas or WebGL.
-* **detectDOMMutation**: Detect suspicious DOM modifications.
-* **detectTiming**: Detect anomalies in execution timing.
-* **detectionInterval**: Interval in ms for running detection checks.
-* **banDurationMs**: Duration of bans in milliseconds.
-* **telemetryFlushInterval**: Interval in ms to flush detection reports.
+1. Client modules collect telemetry & detect anomalies
+2. Telemetry is securely signed and sent to the server
+3. Server validates, normalizes, and scores events
+4. Optional: Live WebSocket dashboard receives real-time updates
 
 ---
 
-## **4️⃣ Ban Behavior**
+## **Installation**
 
-* **Ban Overlay**: Users who are banned see a full-screen, animated overlay with the reason and expiration time.
-* **Persistent Bans**: Bans are stored in MongoDB via Vercel APIs and persist across reloads.
-* **Webhook Notifications**: Sends IP, Client ID, reason, and ban duration to Discord if configured.
+### **Server**
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/starlight-anticheat.git
+cd starlight-anticheat/server
+```
+
+2. Install dependencies:
+
+```bash
+npm install express ws morgan
+```
+
+3. Configure `server/config/server.config.js`:
+
+```js
+module.exports = {
+  port: 4000,
+  allowedOrigins: ["https://yourgame.com"],
+  privateSalt: "replace_with_secure_random_string",
+  rateLimit: { windowMs: 10000, max: 60 },
+  websocketPath: "/ws"
+};
+```
+
+4. Start the server:
+
+```bash
+node index.js
+```
+
+### **Client**
+
+1. Include the client folder in your web game project.
+2. Import the loader in your HTML:
+
+```html
+<script type="module">
+  import StarlightLoader from './client/starlight.loader.js';
+
+  StarlightLoader.load({
+    gameId: "MY_GAME_ID",
+    debug: true
+  });
+</script>
+```
+
+3. Optional: Enable WebSocket for live monitoring:
+
+```js
+StarlightLoader.load({
+  liveEndpoint: "wss://yourdomain.com/ws",
+  debug: true
+});
+```
 
 ---
 
-## **5️⃣ Recommended Practices**
+## **Telemetry Workflow**
 
-* **Keep your webhook secure**: Only share with trusted staff.
-* **Adjust detection settings** based on your game’s vulnerability and type.
-* **Regularly monitor** ban logs and webhook notifications.
-* **Test in staging** before going live.
-* **Update the script** from GitHub to ensure you have the latest fixes.
+```
+Client Modules
++-----------------+
+| Integrity       |
+| Hooks           |
+| Console         |
++--------+--------+
+         |
+         v
+  Event Buffer
+         |
+         v
+  Signed Telemetry
+         |
+         v
++-----------------+
+| Starlight Server|
+| - Validate      |
+| - Normalize     |
+| - Verdict       |
++--------+--------+
+         |
+         v
+  Admin Dashboard (WebSocket)
+```
+
+* Client collects events and sends them securely
+* Server validates & scores events in real time
+* Admin dashboard receives live WebSocket telemetry (optional)
 
 ---
 
-## **6️⃣ Troubleshooting**
+## **Configuration**
 
-* **Bans not persisting**: Check that your MongoDB connection string is correct and set in Vercel environment variables.
-* **Webhook not triggering**: Ensure your Discord webhook URL is correct and publicly accessible.
-* **DevTools not blocked**: Ensure `blockDevTools: true` is set in your configuration.
+### **Client (`starlight.config.js`)**
+
+```js
+{
+  gameId: "YOUR_GAME_ID",
+  flushIntervalMs: 3000,
+  maxEventBuffer: 200,
+  integrity: { enabled: true, checkIntervalMs: 2500 },
+  console: { warnOnOpen: true, blockConsolePaste: true, watermarkText: "Protected by Starlight" },
+  gameplay: { maxClicksPerSecond: 18, maxKeyPressPerSecond: 25 },
+  crypto: { clientSalt: "public_salt_not_secret", timestampSkewMs: 15000 },
+  liveEndpoint: null,
+  debug: false
+}
+```
+
+### **Server (`server.config.js`)**
+
+```js
+{
+  port: 4000,
+  allowedOrigins: ["https://yourgame.com"],
+  privateSalt: "replace_with_secure_random_string",
+  rateLimit: { windowMs: 10000, max: 60 },
+  websocketPath: "/ws"
+}
+```
 
 ---
 
-**Congratulations!** 🎉
-Your webgame is now protected with StarLight Anticheat v5. Users attempting to cheat will be detected, banned, and reported automatically.
+## **Best Practices & Security**
 
-**© 2025 Aztherix Software - All rights reserved**
+* Always use **HTTPS** in production
+* Limit `allowedOrigins` to your domain(s)
+* Keep `privateSalt` secret on the server
+* Don’t rely solely on client-side anti-cheat—server validation is critical
+* Enable `debug: true` for integration/testing; disable in production
+
+---
+
+## **Contributing**
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -m 'Add feature'`)
+4. Push the branch (`git push origin feature/my-feature`)
+5. Open a Pull Request
+
+---
+
+## **License**
+
+MIT License – free for personal and commercial use.
+Please retain credit to Starlight Anticheat in your project.
+
+---
+
+## **Contact**
+
+* GitHub: [https://github.com/yourusername/starlight-anticheat](https://github.com/yourusername/starlight-anticheat)
+* Email: [support@yourdomain.com](mailto:support@yourdomain.com)
+
+---
+
+✅ **Professional, visually structured, and ready for public release.**
+
+---
+
+I can also create a **polished GitHub-style diagram** showing the **Client → Server → WebSocket Dashboard** workflow to embed in this README.
+
+Do you want me to make that diagram next?
