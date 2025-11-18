@@ -1,7 +1,7 @@
 
 
 <div align="center">
-  <img src="https://ibb.co/F4v3J3Xm" width="100px" alt="GitHub Readme Stats" />
+  <img src="https://imgur.com/a/xI4aSt6" width="100px" alt="SCSoftwareLogo" />
   <h1 style="font-size: 28px; margin: 10px 0;">Starlight Anticheat</h1>
   <p>Advanced Anti-Cheat Framework for Browser Games</p>
 </div>
@@ -246,18 +246,3 @@ MIT License – free for personal and commercial use.
 Please retain credit to Starlight Anticheat in your project.
 
 ---
-
-## **Contact**
-
-* GitHub: [https://github.com/yourusername/starlight-anticheat](https://github.com/yourusername/starlight-anticheat)
-* Email: [support@yourdomain.com](mailto:support@yourdomain.com)
-
----
-
-✅ **Professional, visually structured, and ready for public release.**
-
----
-
-I can also create a **polished GitHub-style diagram** showing the **Client → Server → WebSocket Dashboard** workflow to embed in this README.
-
-Do you want me to make that diagram next?
