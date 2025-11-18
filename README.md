@@ -1,7 +1,5 @@
-
-
 <div align="center">
-  <img src="logo/scsoftware.png" width="100px" alt="SCSoftwareLogo" />
+  <img src="logo/logo.png" width="100px" alt="SCSoftwareLogo" />
   <h1 style="font-size: 28px; margin: 10px 0;">Starlight Anticheat</h1>
   <p>Advanced Anti-Cheat Framework for Browser Games</p>
 </div>
@@ -11,7 +9,11 @@
 
 ---
 
-## **Table of Contents**
+<br />
+<div align="center">
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  </a>
 
 1. [Overview](#overview)
 2. [Features](#features)
