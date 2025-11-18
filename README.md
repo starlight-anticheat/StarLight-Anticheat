@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo/logo.png" width="100px" alt="SCSoftwareLogo" />
+  <img src="logo/header.png" width="100px" alt="SCSoftwareLogo" />
   <h1 style="font-size: 28px; margin: 10px 0;">Starlight Anticheat</h1>
   <p>Advanced Anti-Cheat Framework for Browser Games</p>
 </div>
